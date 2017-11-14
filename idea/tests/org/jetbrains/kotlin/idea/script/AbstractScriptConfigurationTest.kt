@@ -24,8 +24,6 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.testFramework.PlatformTestUtil
 import org.jetbrains.kotlin.codegen.forTestCompile.ForTestCompileRuntime
 import org.jetbrains.kotlin.idea.completion.test.KotlinCompletionTestCase
-import org.jetbrains.kotlin.idea.core.script.ScriptDependenciesManager
-import org.jetbrains.kotlin.idea.KotlinDaemonAnalyzerTestCase
 import org.jetbrains.kotlin.idea.core.script.ScriptDefinitionContributor
 import org.jetbrains.kotlin.idea.core.script.ScriptDefinitionsManager
 import org.jetbrains.kotlin.idea.core.script.ScriptDependenciesManager.Companion.updateScriptDependenciesSynchronously
