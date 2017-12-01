@@ -26,6 +26,7 @@ import org.jetbrains.kotlin.descriptors.PackagePartProvider
 import org.jetbrains.kotlin.descriptors.impl.CompositePackageFragmentProvider
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
 import org.jetbrains.kotlin.frontend.java.di.createContainerForLazyResolveWithJava
+import org.jetbrains.kotlin.incremental.components.ExpectActualTracker
 import org.jetbrains.kotlin.incremental.components.LookupTracker
 import org.jetbrains.kotlin.load.java.lazy.ModuleClassResolverImpl
 import org.jetbrains.kotlin.load.java.structure.JavaClass
@@ -94,6 +95,7 @@ object JvmAnalyzerFacade : AnalyzerFacade() {
                 moduleClassResolver,
                 targetEnvironment,
                 lookupTracker,
+                ExpectActualTracker.DO_NOTHING,
                 packagePartProvider,
                 jvmTarget,
                 languageVersionSettings,

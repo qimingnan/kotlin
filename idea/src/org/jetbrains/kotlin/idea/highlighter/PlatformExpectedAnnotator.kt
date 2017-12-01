@@ -50,7 +50,8 @@ class PlatformExpectedAnnotator : Annotator {
 
         val trace = BindingTraceContext()
         for (module in implementingModules) {
-            ExpectedActualDeclarationChecker.checkExpectedDeclarationHasActual(declaration, descriptor, trace, module)
+            ExpectedActualDeclarationChecker.checkExpectedDeclarationHasActual(declaration, descriptor, trace, module,
+                                                                               expectActualTracker = null)
         }
 
         val suppressionCache = KotlinCacheService.getInstance(declaration.project).getSuppressionCache()
