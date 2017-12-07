@@ -95,7 +95,7 @@ open class IncrementalJsCache(cachesDir: File) : IncrementalCacheCommon<FqName>(
             translationResults.remove(it, changesCollector)
             inlineFunctions.remove(it)
         }
-        removeAllFromClassStorage(dirtyOutputClassesMap.getDirtyOutputClasses())
+        removeAllFromClassStorage(dirtyOutputClassesMap.getDirtyOutputClasses(), changesCollector)
         dirtySources.clear()
         dirtyOutputClassesMap.clean()
     }
