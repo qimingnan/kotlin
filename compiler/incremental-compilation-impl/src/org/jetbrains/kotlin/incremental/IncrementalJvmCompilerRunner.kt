@@ -223,7 +223,8 @@ class IncrementalJvmCompilerRunner(
         val javaFiles = (changedFiles.modified + changedFiles.removed).filter(File::isJavaFile)
 
         for (javaFile in javaFiles) {
-            if (!caches.platformCache.isTrackedFile(javaFile)) {
+            // todo: fix removed untracked file for multi-module case
+            if (!caches.platformCache.isTrackedFile(javaFile) && javaFile.exists()) {
                 val psiFile = javaFile.psiFile()
                 if (psiFile !is PsiJavaFile) {
                     reporter.report { "[Precise Java tracking] Expected PsiJavaFile, got ${psiFile?.javaClass}" }
