@@ -31,9 +31,6 @@ import org.jetbrains.kotlin.builtins.DefaultBuiltIns
 import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.idea.core.ShortenReferences
 import org.jetbrains.kotlin.idea.core.insertMembersAfter
-import org.jetbrains.kotlin.idea.quickfix.AddModifierFix
-import org.jetbrains.kotlin.idea.quickfix.RemoveModifierFix
-import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.platform.JavaToKotlinClassMap
 import org.jetbrains.kotlin.psi.*
@@ -42,26 +39,9 @@ import org.jetbrains.kotlin.psi.KtPsiFactory.CallableBuilder.Target.CONSTRUCTOR
 import org.jetbrains.kotlin.psi.KtPsiFactory.CallableBuilder.Target.FUNCTION
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.uast.UClass
-import org.jetbrains.uast.UDeclaration
 import org.jetbrains.uast.UElement
 
 class KotlinCommonIntentionActionsFactory : JvmCommonIntentionActionsFactory() {
-    override fun createChangeModifierAction(declaration: UDeclaration, modifier: String, shouldPresent: Boolean): IntentionAction? {
-        val kModifierOwner = declaration.asKtElement<KtModifierListOwner>()
-                             ?: throw IllegalArgumentException("$declaration is expected to contain KtLightElement with KtModifierListOwner")
-
-        val (kToken, shouldPresentMapped) = if (PsiModifier.FINAL == modifier)
-            KtTokens.OPEN_KEYWORD to !shouldPresent
-        else
-            javaPsiModifiersMapping[modifier] to shouldPresent
-
-        if (kToken == null) return null
-        return if (shouldPresentMapped)
-            AddModifierFix.createIfApplicable(kModifierOwner, kToken)
-        else
-            RemoveModifierFix(kModifierOwner, kToken, false)
-    }
-
     override fun createAddBeanPropertyActions(uClass: UClass,
                                               propertyName: String,
                                               visibilityModifier: String,
@@ -104,13 +84,6 @@ class KotlinCommonIntentionActionsFactory : JvmCommonIntentionActionsFactory() {
             }
 
     companion object {
-        val javaPsiModifiersMapping = mapOf(
-                PsiModifier.PRIVATE to KtTokens.PRIVATE_KEYWORD,
-                PsiModifier.PUBLIC to KtTokens.PUBLIC_KEYWORD,
-                PsiModifier.PROTECTED to KtTokens.PUBLIC_KEYWORD,
-                PsiModifier.ABSTRACT to KtTokens.ABSTRACT_KEYWORD
-        )
-
         val javaVisibilityMapping: Map<String, String> = mapOf(
                 PsiModifier.PRIVATE to Visibilities.PRIVATE.displayName,
                 PsiModifier.PUBLIC to "",

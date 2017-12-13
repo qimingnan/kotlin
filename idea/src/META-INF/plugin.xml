@@ -851,6 +851,8 @@
 
     <gotoRelatedProvider implementation="org.jetbrains.kotlin.idea.goto.KotlinExpectOrActualGotoRelatedProvider"/>
 
+    <lang.jvm.actions.jvmElementActionsFactory implementation="org.jetbrains.kotlin.idea.quickfix.crossLanguage.KotlinElementActionsFactory"/>
+
     <intentionAction>
       <className>org.jetbrains.kotlin.idea.intentions.FoldInitializerAndIfToElvisIntention</className>
       <category>Kotlin</category>
