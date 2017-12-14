@@ -452,16 +452,31 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
 
                 val psiFactory = KtPsiFactory(currentFile)
 
-                val modifiers =
-                        if (callableInfo.isAbstract) {
-                            if (containingElement is KtClass && containingElement.isInterface()) "" else "abstract "
+                val modifiers = buildString {
+                    if (callableInfo.isFromJava) {
+                        if (callableInfo is PropertyInfo) {
+                            append("@JvmField ")
                         }
-                        else if (containingElement is KtClassOrObject
-                                 && !(containingElement is KtClass && containingElement.isInterface())
-                                 && containingElement.isAncestor(config.originalElement)
-                                 && callableInfo.kind != CallableKind.CONSTRUCTOR) "private "
-                        else if (isExtension) "private "
-                        else ""
+                        else if (containingElement is KtClass && callableInfo.isForCompanion ) {
+                            append("@JvmStatic ")
+                        }
+                    }
+
+                    val defaultVisibility =
+                            if (callableInfo.isFromJava) ""
+                            else if (callableInfo.isAbstract) ""
+                            else if (containingElement is KtClassOrObject
+                                     && !(containingElement is KtClass && containingElement.isInterface())
+                                     && containingElement.isAncestor(config.originalElement)
+                                     && callableInfo.kind != CallableKind.CONSTRUCTOR) "private "
+                            else if (isExtension) "private "
+                            else ""
+                    append(defaultVisibility)
+
+                    if (callableInfo.isAbstract && containingElement is KtClass && !containingElement.isInterface()) {
+                        append("abstract ")
+                    }
+                }
 
                 val isExpectClassMember by lazy {
                     containingElement is KtClassOrObject && (containingElement.resolveToDescriptorIfAny() as? ClassDescriptor)?.isExpect ?: false
@@ -544,7 +559,11 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
                     return assignmentToReplace.replace(declaration) as KtCallableDeclaration
                 }
 
-                val declarationInPlace = placeDeclarationInContainer(declaration, containingElement, config.originalElement, jetFileToEdit)
+                val container = if (containingElement is KtClass && callableInfo.isForCompanion) {
+                    containingElement.getOrCreateCompanionObject()
+                }
+                else containingElement
+                val declarationInPlace = placeDeclarationInContainer(declaration, container, config.originalElement, jetFileToEdit)
 
                 if (declarationInPlace is KtSecondaryConstructor) {
                     val containingClass = declarationInPlace.containingClassOrObject!!
@@ -751,13 +770,7 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
 
                 // add parameter name to the template
                 val possibleNamesFromExpression = parameter.typeInfo.getPossibleNamesFromExpression(currentFileContext)
-                val preferredName = parameter.preferredName
-                val possibleNames = if (preferredName != null) {
-                    arrayOf(preferredName, *possibleNamesFromExpression)
-                }
-                else {
-                    possibleNamesFromExpression
-                }
+                val possibleNames = arrayOf(*parameter.nameSuggestions.toTypedArray(), *possibleNamesFromExpression)
 
                 // figure out suggested names for each type option
                 val parameterTypeToNamesMap = HashMap<String, Array<String>>()

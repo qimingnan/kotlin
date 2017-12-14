@@ -220,6 +220,7 @@ fun KotlinFacet.configureFacet(
                 compilerVersion
         )
         // Both apiLevel and languageLevel should be initialized in the lines above
+
         if (apiLevel!! > languageLevel!!) {
             apiLevel = languageLevel
         }

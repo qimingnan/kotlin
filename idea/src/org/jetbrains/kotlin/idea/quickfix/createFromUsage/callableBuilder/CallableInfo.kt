@@ -70,6 +70,10 @@ abstract class TypeInfo(val variance: Variance) {
                 (builder.placement as CallablePlacement.WithReceiver).receiverTypeCandidate.theType.getPossibleSupertypes(variance, builder)
     }
 
+    class ByExplicitCandidateTypes(val types: List<KotlinType>) : TypeInfo(Variance.INVARIANT) {
+        override fun getPossibleTypes(builder: CallableBuilder) = types
+    }
+
     abstract class DelegatingTypeInfo(val delegate: TypeInfo): TypeInfo(delegate.variance) {
         override val substitutionsAllowed: Boolean = delegate.substitutionsAllowed
         override fun getPossibleNamesFromExpression(bindingContext: BindingContext) = delegate.getPossibleNamesFromExpression(bindingContext)
@@ -155,8 +159,10 @@ fun TypeInfo.ofThis() = TypeInfo.OfThis(this)
  */
 class ParameterInfo(
         val typeInfo: TypeInfo,
-        val preferredName: String? = null
-)
+        val nameSuggestions: List<String>
+) {
+    constructor(typeInfo: TypeInfo, preferredName: String? = null): this(typeInfo, listOfNotNull(preferredName))
+}
 
 enum class CallableKind {
     FUNCTION,
@@ -171,7 +177,9 @@ abstract class CallableInfo (
         val returnTypeInfo: TypeInfo,
         val possibleContainers: List<KtElement>,
         val typeParameterInfos: List<TypeInfo>,
-        val isAbstract: Boolean = false
+        val isAbstract: Boolean = false,
+        val isForCompanion: Boolean = false,
+        val isFromJava: Boolean = false
 ) {
     abstract val kind: CallableKind
     abstract val parameterInfos: List<ParameterInfo>
@@ -189,8 +197,10 @@ class FunctionInfo(name: String,
                    typeParameterInfos: List<TypeInfo> = Collections.emptyList(),
                    val isOperator: Boolean = false,
                    val isInfix: Boolean = false,
-                   isAbstract: Boolean = false
-) : CallableInfo(name, receiverTypeInfo, returnTypeInfo, possibleContainers, typeParameterInfos, isAbstract) {
+                   isAbstract: Boolean = false,
+                   isForCompanion: Boolean = false,
+                   isFromJava: Boolean = false
+) : CallableInfo(name, receiverTypeInfo, returnTypeInfo, possibleContainers, typeParameterInfos, isAbstract, isForCompanion, isFromJava) {
     override val kind: CallableKind get() = CallableKind.FUNCTION
 
     override fun copy(receiverTypeInfo: TypeInfo, possibleContainers: List<KtElement>, isAbstract: Boolean) = FunctionInfo(
@@ -206,8 +216,8 @@ class FunctionInfo(name: String,
     )
 }
 
-class ClassWithPrimaryConstructorInfo(val classInfo: ClassInfo, expectedTypeInfo: TypeInfo): CallableInfo(
-        classInfo.name, TypeInfo.Empty, expectedTypeInfo.forceNotNull(), Collections.emptyList(), classInfo.typeArguments, false
+class ClassWithPrimaryConstructorInfo(val classInfo: ClassInfo, expectedTypeInfo: TypeInfo, isFromJava: Boolean = false): CallableInfo(
+        classInfo.name, TypeInfo.Empty, expectedTypeInfo.forceNotNull(), Collections.emptyList(), classInfo.typeArguments, false, isFromJava = isFromJava
 ) {
     override val kind: CallableKind get() = CallableKind.CLASS_WITH_PRIMARY_CONSTRUCTOR
     override val parameterInfos: List<ParameterInfo> get() = classInfo.parameterInfos
@@ -218,8 +228,9 @@ class ClassWithPrimaryConstructorInfo(val classInfo: ClassInfo, expectedTypeInfo
 class ConstructorInfo(
         override val parameterInfos: List<ParameterInfo>,
         val targetClass: PsiElement,
-        val isPrimary: Boolean = false
-): CallableInfo("", TypeInfo.Empty, TypeInfo.Empty, Collections.emptyList(), Collections.emptyList(), false) {
+        val isPrimary: Boolean = false,
+        isFromJava: Boolean = false
+): CallableInfo("", TypeInfo.Empty, TypeInfo.Empty, Collections.emptyList(), Collections.emptyList(), false, isFromJava = isFromJava) {
     override val kind: CallableKind get() = CallableKind.CONSTRUCTOR
 
     override fun copy(receiverTypeInfo: TypeInfo, possibleContainers: List<KtElement>, isAbstract: Boolean) = throw UnsupportedOperationException()
@@ -232,8 +243,10 @@ class PropertyInfo(name: String,
                    possibleContainers: List<KtElement> = Collections.emptyList(),
                    typeParameterInfos: List<TypeInfo> = Collections.emptyList(),
                    isAbstract: Boolean = false,
-                   val isLateinitPreferred: Boolean = false
-) : CallableInfo(name, receiverTypeInfo, returnTypeInfo, possibleContainers, typeParameterInfos, isAbstract) {
+                   val isLateinitPreferred: Boolean = false,
+                   isForCompanion: Boolean = false,
+                   isFromJava: Boolean = false
+) : CallableInfo(name, receiverTypeInfo, returnTypeInfo, possibleContainers, typeParameterInfos, isAbstract, isForCompanion, isFromJava) {
     override val kind: CallableKind get() = CallableKind.PROPERTY
     override val parameterInfos: List<ParameterInfo> get() = Collections.emptyList()
 

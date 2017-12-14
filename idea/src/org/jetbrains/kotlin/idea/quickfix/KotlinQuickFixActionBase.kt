@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2017 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,29 +16,30 @@
 
 package org.jetbrains.kotlin.idea.quickfix
 
-import com.intellij.codeInsight.FileModificationService
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
-import org.jetbrains.kotlin.asJava.elements.FakeFileForLightClass
 import org.jetbrains.kotlin.psi.KtCodeFragment
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.psiUtil.createSmartPointer
 
-abstract class KotlinQuickFixAction<out T : PsiElement>(element: T) : KotlinQuickFixActionBase<T>(element) {
-    override final fun invoke(project: Project, editor: Editor?, file: PsiFile) {
-        val element = element ?: return
-        val ktFile = when (file) {
-            is KtFile -> file
-            is FakeFileForLightClass -> file.navigationElement
-            else -> null
-        }
-        if (ktFile != null && FileModificationService.getInstance().prepareFileForWrite(element.containingFile)) {
-            invoke(project, editor, ktFile)
-        }
+abstract class KotlinQuickFixActionBase<out T : PsiElement>(element: T) : IntentionAction {
+    private val elementPointer = element.createSmartPointer()
+
+    protected val element: T?
+        get() = elementPointer.element
+
+    open val isCrossLanguageFix: Boolean = false
+
+    override fun isAvailable(project: Project, editor: Editor?, file: PsiFile): Boolean {
+        val element = element ?: return false
+        return element.isValid &&
+               !element.project.isDisposed &&
+               (file.manager.isInProject(file) || file is KtCodeFragment) &&
+               (file is KtFile || isCrossLanguageFix)
     }
 
-    protected abstract fun invoke(project: Project, editor: Editor?, file: KtFile)
+    override fun startInWriteAction() = true
 }
