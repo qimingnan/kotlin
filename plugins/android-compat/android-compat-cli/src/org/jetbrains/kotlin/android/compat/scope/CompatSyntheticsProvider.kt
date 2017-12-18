@@ -34,6 +34,7 @@ import org.jetbrains.kotlin.synthetic.extensions.SyntheticScopeProviderExtension
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.checker.KotlinTypeChecker
 import org.jetbrains.kotlin.types.typeUtil.isInterface
+import java.io.File
 import kotlin.properties.Delegates
 
 interface CompatSyntheticFunctionDescriptor : FunctionDescriptor, SyntheticMemberDescriptor<FunctionDescriptor>
@@ -258,9 +259,11 @@ private class CompatSyntheticStaticScope(
 
 class CompatSyntheticsProvider(private val storageManager: StorageManager) : SyntheticScopeProvider {
     override fun provideSyntheticScope(scope: ResolutionScope, requirements: SyntheticScopesRequirements): ResolutionScope {
+        File("/tmp/compat.log").appendText("input scope $scope\n")
         val descriptor = scope.getContributedDescriptors().firstOrNull() ?: return scope
         val ownerClass = descriptor.containingDeclaration as? ClassDescriptor ?: return scope
         val type = ownerClass.defaultType as? KotlinType ?: return scope
+        File("/tmp/compat.log").appendText("creating compat synthetic scope for $type\n")
         return when {
         // The property can be generated from getters, thus, we should provide a scope for them
             requirements.needMemberFunctions || requirements.needExtensionProperties ->

@@ -90,7 +90,7 @@ object PluginCliParser {
 
             for (optionValue in optionValuesByPlugin[processor.pluginId].orEmpty()) {
                 val option = declaredOptions[optionValue!!.optionName]
-                             ?: throw CliOptionProcessingException("Unsupported plugin option: $optionValue")
+                             ?: continue  // throw CliOptionProcessingException("Unsupported plugin option: $optionValue")
                 optionsToValues.putValue(option, optionValue)
             }
 

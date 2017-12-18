@@ -174,6 +174,8 @@ val gradlePluginProjects = listOf(
 //        ":kotlin-gradle-plugin-integration-tests",  // TODO: build fails
         ":kotlin-allopen",
         ":kotlin-allopen:plugin-marker",
+        ":kotlin-android-compat",
+        ":kotlin-android-compat:plugin-marker",
         ":kotlin-annotation-processing-gradle",
         ":kotlin-noarg",
         ":kotlin-noarg:plugin-marker",

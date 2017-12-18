@@ -27,7 +27,7 @@ dependencies {
     compile(projectTests(":idea:idea-android"))
     compile(projectTests(":jps-plugin"))
     compile(projectTests(":plugins:android-extensions-compiler"))
-    compile(projectTests(":plugins:android-compat"))
+    compile(projectTests(":android-compat-compiler-plugin"))
     compile(projectTests(":plugins:android-extensions-ide"))
     compile(projectTests(":plugins:android-extensions-jps"))
     compile(projectTests(":kotlin-annotation-processing"))

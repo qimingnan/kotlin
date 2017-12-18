@@ -1,0 +1,44 @@
+apply plugin: 'kotlin'
+
+configureJvmProject(project)
+configurePublishing(project)
+
+repositories {
+    mavenLocal()
+    jcenter()
+    maven { url 'http://repository.jetbrains.com/utils' }
+}
+
+dependencies {
+    compile project(':kotlin-gradle-plugin-api')
+
+    compile project(':kotlin-stdlib')
+    compileOnly project(path: ':kotlin-compiler-embeddable', configuration: 'runtimeJar')
+    compileOnly project(':android-compat-compiler-plugin')
+
+    compileOnly 'org.jetbrains.kotlin:gradle-api:1.6'
+}
+
+evaluationDependsOn(":plugins")
+
+jar {
+    from(project(":android-compat-compiler-plugin").sourceSets.main.output.classesDirs)
+    from(project(":android-compat-compiler-plugin").sourceSets.main.output.resourcesDir)
+    manifestAttributes(manifest, project)
+}
+
+ArtifactsKt.runtimeJar(project, EmbeddableKt.rewriteDepsToShadedCompiler(project, jar, {}), {})
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+pluginBundle {
+    plugins {
+        kotlinAndroidCompatPlugin {
+            id = 'org.jetbrains.kotlin.plugin.android.compat'
+            description = displayName = 'Kotlin Android Compat compiler plugin'
+        }
+    }
+}

@@ -27,10 +27,14 @@ sourceSets {
     "test" { projectDefault() }
 }
 
-dist()
+dist(targetName = the<BasePluginConvention>().archivesBaseName.removePrefix("kotlin-") + ".jar")
 
-ideaPlugin()
+val jar = runtimeJar {
+    from(fileTree("$projectDir/src")) { include("META-INF/**") }
+}
 
 testsJar {}
+
+ideaPlugin()
 
 projectTest { workingDir = rootDir }

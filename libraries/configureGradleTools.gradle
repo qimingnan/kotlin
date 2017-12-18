@@ -1,5 +1,5 @@
 
-configure([project(':kotlin-gradle-plugin'), project(':kotlin-allopen'), project(':kotlin-noarg')]) { project ->
+configure([project(':kotlin-gradle-plugin'), project(':kotlin-allopen'), project(':kotlin-android-compat'), project(':kotlin-noarg')]) { project ->
     apply plugin: 'com.gradle.plugin-publish'
 
     if (project.hasProperty('publishPluginsVersion')) {
