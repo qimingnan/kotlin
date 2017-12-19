@@ -1,7 +1,5 @@
 <idea-plugin>
     <extensionPoints>
-        <extensionPoint qualifiedName="org.jetbrains.kotlin.gradleFrameworkSupport"
-                        interface="org.jetbrains.kotlin.gradle.kdsl.frameworkSupport.GradleFrameworkSupportProvider"/>
         <extensionPoint qualifiedName="org.jetbrains.kotlin.platformGradleDetector"
                         interface="org.jetbrains.kotlin.idea.inspections.gradle.KotlinPlatformGradleDetector"/>
     </extensionPoints>
