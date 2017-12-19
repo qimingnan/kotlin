@@ -47,7 +47,7 @@ class InputsCache(
      */
     private val complementaryFilesMap = registerMap(FilesMap(COMPLEMENTARY_FILES.storageFile))
 
-    fun removeComplementaryFiles(dirtyFiles: Collection<File>): Collection<File> {
+    fun clearComplementaryFilesMapping(dirtyFiles: Collection<File>): Collection<File> {
         val complementaryFiles = HashSet<File>()
         val filesQueue = LinkedList(dirtyFiles)
         while (filesQueue.isNotEmpty()) {
