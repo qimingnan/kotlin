@@ -83,7 +83,7 @@ object ExpectedActualDeclarationChecker : DeclarationChecker {
             descriptor: MemberDescriptor,
             diagnosticHolder: DiagnosticSink,
             platformModule: ModuleDescriptor,
-            expectActualTracker: ExpectActualTracker?
+            expectActualTracker: ExpectActualTracker
     ) {
         // Only look for top level actual members; class members will be handled as a part of that expected class
         if (descriptor.containingDeclaration !is PackageFragmentDescriptor) return

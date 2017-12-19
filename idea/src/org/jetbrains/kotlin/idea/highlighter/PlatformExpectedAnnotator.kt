@@ -25,6 +25,7 @@ import org.jetbrains.kotlin.idea.caches.resolve.findModuleDescriptor
 import org.jetbrains.kotlin.idea.core.toDescriptor
 import org.jetbrains.kotlin.idea.facet.implementingDescriptors
 import org.jetbrains.kotlin.idea.project.TargetPlatformDetector
+import org.jetbrains.kotlin.incremental.components.ExpectActualTracker
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtNamedDeclaration
@@ -51,7 +52,7 @@ class PlatformExpectedAnnotator : Annotator {
         val trace = BindingTraceContext()
         for (module in implementingModules) {
             ExpectedActualDeclarationChecker.checkExpectedDeclarationHasActual(declaration, descriptor, trace, module,
-                                                                               expectActualTracker = null)
+                                                                               ExpectActualTracker.DoNothing)
         }
 
         val suppressionCache = KotlinCacheService.getInstance(declaration.project).getSuppressionCache()
