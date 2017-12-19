@@ -90,6 +90,11 @@ open class IncrementalJsCache(cachesDir: File) : IncrementalCacheCommon<FqName>(
         }
     }
 
+    private fun registerOutputForFile(srcFile: File, name: FqName) {
+        sourceToClassesMap.add(srcFile, name)
+        dirtyOutputClassesMap.notDirty(name)
+    }
+
     override fun clearCacheForRemovedClasses(changesCollector: ChangesCollector) {
         dirtySources.forEach {
             translationResults.remove(it, changesCollector)

@@ -70,11 +70,6 @@ abstract class IncrementalCacheCommon<ClassName>(workingDir: File) : BasicMapsOw
         }
     }
 
-    protected fun registerOutputForFile(srcFile: File, name: ClassName) {
-        sourceToClassesMap.add(srcFile, name)
-        dirtyOutputClassesMap.notDirty(name)
-    }
-
     protected fun addToClassStorage(proto: ProtoBuf.Class, nameResolver: NameResolver, srcFile: File) {
         val supertypes = proto.supertypes(TypeTable(proto.typeTable))
         val parents = supertypes.map { nameResolver.getClassId(it.className).asSingleFqName() }
