@@ -3049,6 +3049,18 @@ public class IrCompileKotlinAgainstInlineKotlinTestGenerated extends AbstractIrC
                 doTest(fileName);
             }
 
+            @TestMetadata("inlinInDefault2.kt")
+            public void testInlinInDefault2() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/boxInline/smap/default/inlinInDefault2.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("inlineAnonymousInDefault.kt")
+            public void testInlineAnonymousInDefault() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/boxInline/smap/default/inlineAnonymousInDefault.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("kt21827.kt")
             public void testKt21827() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/boxInline/smap/default/kt21827.kt");
