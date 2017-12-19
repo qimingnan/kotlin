@@ -39,6 +39,11 @@ import kotlin.properties.Delegates
 
 interface CompatSyntheticFunctionDescriptor : FunctionDescriptor, SyntheticMemberDescriptor<FunctionDescriptor>
 
+private data class OriginAndCompat(
+        val origin: ClassDescriptor,
+        val compat: ClassDescriptor?
+)
+
 private abstract class CompatSyntheticResolutionScope(
         storageManager: StorageManager,
         protected val ownerClass: ClassDescriptor,
@@ -49,10 +54,15 @@ private abstract class CompatSyntheticResolutionScope(
         doGetCompats()
     }
 
-    private fun doGetCompats(): Collection<ClassDescriptor> {
+    private fun doGetCompats(): Collection<OriginAndCompat> {
         return (type.constructor.supertypes + type)
                 .filterNot { it.isInterface() }
-                .mapNotNull { (it.constructor.declarationDescriptor as? ClassDescriptor)?.findCompat() }
+                .mapNotNull {
+                    OriginAndCompat(
+                            it.constructor.declarationDescriptor as ClassDescriptor,
+                            (it.constructor.declarationDescriptor as? ClassDescriptor)?.findCompat()
+                    )
+                }
     }
 
     private fun ClassDescriptor.findCompat(): ClassDescriptor? {
@@ -87,13 +97,15 @@ private class CompatSyntheticMemberFunctionsScope(
     }
 
     private fun doGetFunctions(name: Name): Collection<FunctionDescriptor> {
-        return compats().flatMap { compat ->
+        return compats().flatMap { (origin, compat) ->
+            if (compat == null) return@flatMap emptyList<FunctionDescriptor>()
             val compatFunctions = compat.staticScope.getContributedFunctions(name, NoLookupLocation.FROM_SYNTHETIC_SCOPE)
             val visibleCompatFunctions = compatFunctions.filter { it.visibility == Visibilities.PUBLIC }
-            val visibleCompatFunctionsWhichDoNotTakeOriginAsFistParam = visibleCompatFunctions.filter {
+            val visibleCompatFunctionsWhichTakeOriginAsFistParam = visibleCompatFunctions.filter {
                 it.valueParameters.size > 0 && KotlinTypeChecker.DEFAULT.isSubtypeOf(type, it.valueParameters.first().type)
             }
-            visibleCompatFunctionsWhichDoNotTakeOriginAsFistParam.map { CompatMemberFunctionDescriptor.create(ownerClass, it) }
+            val synthetic = visibleCompatFunctionsWhichTakeOriginAsFistParam.map { CompatMemberFunctionDescriptor.create(origin, it) }
+            synthetic
         }
     }
 
@@ -171,7 +183,8 @@ private class CompatSyntheticStaticScope(
     }
 
     private fun doGetFields(name: Name): Collection<VariableDescriptor> {
-        return compats().flatMap { compat ->
+        return compats().flatMap { (_, compat) ->
+            if (compat == null) return@flatMap emptyList<VariableDescriptor>()
             compat.staticScope.getContributedVariables(name, NoLookupLocation.FROM_SYNTHETIC_SCOPE)
                     .filter { it.visibility == Visibilities.PUBLIC }
         }
@@ -199,13 +212,14 @@ private class CompatSyntheticStaticScope(
     }
 
     private fun doGetFunctions(name: Name): Collection<FunctionDescriptor> {
-        return compats().flatMap { compat ->
+        return compats().flatMap { (origin, compat) ->
+            if (compat == null) return@flatMap emptyList<FunctionDescriptor>()
             val compatFunctions = compat.staticScope.getContributedFunctions(name, NoLookupLocation.FROM_SYNTHETIC_SCOPE)
                     .filter { it.visibility == Visibilities.PUBLIC }
             val compatFunctionsWithoutOriginAsFistParam = compatFunctions.filterNot {
-                it.valueParameters.size > 0 && KotlinTypeChecker.DEFAULT.isSubtypeOf(type, it.valueParameters.first().type)
+                it.valueParameters.size > 0 && KotlinTypeChecker.DEFAULT.isSubtypeOf(origin.defaultType, it.valueParameters.first().type)
             }
-            compatFunctionsWithoutOriginAsFistParam.map { CompatStaticFunctionDescriptor.create(ownerClass, it) }
+            compatFunctionsWithoutOriginAsFistParam.map { CompatStaticFunctionDescriptor.create(origin, it) }
         }
     }
 
@@ -259,7 +273,7 @@ private class CompatSyntheticStaticScope(
 
 class CompatSyntheticsProvider(private val storageManager: StorageManager) : SyntheticScopeProvider {
     override fun provideSyntheticScope(scope: ResolutionScope, requirements: SyntheticScopesRequirements): ResolutionScope {
-        File("/tmp/compat.log").appendText("input scope $scope\n")
+        File("/tmp/compat.log").appendText("input scope $\n")
         val descriptor = scope.getContributedDescriptors().firstOrNull() ?: return scope
         val ownerClass = descriptor.containingDeclaration as? ClassDescriptor ?: return scope
         val type = ownerClass.defaultType as? KotlinType ?: return scope
@@ -302,7 +316,6 @@ private fun shadowOriginalFunctions(
 
 private fun FunctionDescriptor.shadows(other: FunctionDescriptor): Boolean {
     if (name != other.name) return false
-    if (containingDeclaration != other.containingDeclaration) return false
     if (valueParameters.size != other.valueParameters.size) return false
     if (returnType == null) {
         if (other.returnType != null) return false
