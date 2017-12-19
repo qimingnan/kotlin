@@ -104,7 +104,12 @@ object ExpectedActualDeclarationChecker : DeclarationChecker {
             diagnosticHolder.report(Errors.NO_ACTUAL_FOR_EXPECT.on(reportOn, descriptor, platformModule, incompatibility))
         }
         else {
-            expectActualTracker?.reportExpectActual(descriptor, compatibility.values.asSequence().flatten())
+            val actualMembers = compatibility.asSequence()
+                    .filter { (compatibility, _) ->
+                        compatibility is Compatible || (compatibility is Incompatible && compatibility.kind != Compatibility.IncompatibilityKind.STRONG)
+                    }.flatMap { it.value.asSequence() }
+
+            expectActualTracker?.reportExpectActual(expected = descriptor, actualMembers = actualMembers)
         }
     }
 
