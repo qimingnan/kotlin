@@ -323,7 +323,7 @@ abstract class AbstractDiagnosticsTest : BaseDiagnosticsTest() {
                 FileBasedDeclarationProviderFactory(moduleContext.storageManager, files),
                 moduleContentScope,
                 LookupTracker.DO_NOTHING,
-                ExpectActualTracker.DO_NOTHING,
+                ExpectActualTracker.DoNothing,
                 environment.createPackagePartProvider(moduleContentScope),
                 moduleClassResolver,
                 JvmTarget.JVM_1_6,

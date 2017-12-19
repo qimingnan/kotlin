@@ -19,11 +19,11 @@ package org.jetbrains.kotlin.incremental.components
 import org.jetbrains.kotlin.container.DefaultImplementation
 import java.io.File
 
-@DefaultImplementation(ExpectActualTracker.DO_NOTHING::class)
+@DefaultImplementation(ExpectActualTracker.DoNothing::class)
 interface ExpectActualTracker {
     fun report(expectedFile: File, actualFile: File)
 
-    object DO_NOTHING : ExpectActualTracker {
+    object DoNothing : ExpectActualTracker {
         override fun report(expectedFile: File, actualFile: File) {
         }
     }

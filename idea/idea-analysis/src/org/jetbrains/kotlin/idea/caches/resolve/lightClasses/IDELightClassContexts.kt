@@ -289,7 +289,7 @@ object IDELightClassContexts {
 
             useInstance(GlobalSearchScope.EMPTY_SCOPE)
             useInstance(LookupTracker.DO_NOTHING)
-            useInstance(ExpectActualTracker.DO_NOTHING)
+            useInstance(ExpectActualTracker.DoNothing)
             useImpl<FileScopeProviderImpl>()
             useInstance(IDELanguageSettingsProvider.getLanguageVersionSettings(moduleInfo, project))
             useInstance(FileBasedDeclarationProviderFactory(sm, files))

@@ -67,7 +67,7 @@ object TopDownAnalyzerFacadeForJS {
             config: JsConfig
     ): JsAnalysisResult {
         val lookupTracker = config.configuration.get(CommonConfigurationKeys.LOOKUP_TRACKER) ?: LookupTracker.DO_NOTHING
-        val expectActualTracker = config.configuration.get(CommonConfigurationKeys.EXPECT_ACTUAL_TRACKER) ?: ExpectActualTracker.DO_NOTHING
+        val expectActualTracker = config.configuration.get(CommonConfigurationKeys.EXPECT_ACTUAL_TRACKER) ?: ExpectActualTracker.DoNothing
         val languageVersionSettings = config.configuration.languageVersionSettings
         val packageFragment = config.configuration[JSConfigurationKeys.INCREMENTAL_DATA_PROVIDER]?.let {
             val metadata = PackagesWithHeaderMetadata(it.headerMetadata, it.compiledPackageParts.values.map { it.metadata })

@@ -114,7 +114,7 @@ object ExpectedActualDeclarationChecker : DeclarationChecker {
     }
 
     private fun ExpectActualTracker.reportExpectActual(expected: MemberDescriptor, actualMembers: Sequence<MemberDescriptor>) {
-        if (this is ExpectActualTracker.DO_NOTHING) return
+        if (this is ExpectActualTracker.DoNothing) return
 
         val expectedFile = sourceFile(expected) ?: return
         for (actual in actualMembers) {

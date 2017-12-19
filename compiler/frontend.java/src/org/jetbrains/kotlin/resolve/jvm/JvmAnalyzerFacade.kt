@@ -95,7 +95,7 @@ object JvmAnalyzerFacade : AnalyzerFacade() {
                 moduleClassResolver,
                 targetEnvironment,
                 lookupTracker,
-                ExpectActualTracker.DO_NOTHING,
+                ExpectActualTracker.DoNothing,
                 packagePartProvider,
                 jvmTarget,
                 languageVersionSettings,

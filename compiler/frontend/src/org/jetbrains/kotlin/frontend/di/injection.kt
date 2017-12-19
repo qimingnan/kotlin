@@ -128,7 +128,7 @@ fun createContainerForLazyLocalClassifierAnalyzer(
 
     useInstance(localClassDescriptorHolder)
     useInstance(lookupTracker)
-    useInstance(ExpectActualTracker.DO_NOTHING)
+    useInstance(ExpectActualTracker.DoNothing)
 
     useImpl<LazyTopDownAnalyzer>()
 

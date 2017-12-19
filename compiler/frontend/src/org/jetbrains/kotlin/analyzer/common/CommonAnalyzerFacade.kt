@@ -143,7 +143,7 @@ object CommonAnalyzerFacade : AnalyzerFacade() {
 
         useInstance(moduleContentScope)
         useInstance(LookupTracker.DO_NOTHING)
-        useInstance(ExpectActualTracker.DO_NOTHING)
+        useInstance(ExpectActualTracker.DoNothing)
         useImpl<ResolveSession>()
         useImpl<LazyTopDownAnalyzer>()
         useInstance(languageVersionSettings)
