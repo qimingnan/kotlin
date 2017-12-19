@@ -55,6 +55,8 @@ class KotlinBeforeResolveHighlightingPass(
     }
 
     override fun doApplyInformationToEditor() {
+
+
         if (annotationHolder == null) return
 
         val infos = annotationHolder!!.map { HighlightInfo.fromAnnotation(it) }
