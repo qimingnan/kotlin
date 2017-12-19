@@ -100,6 +100,9 @@
         <androidDexer implementation="org.jetbrains.kotlin.android.debugger.AndroidDexerImpl"/>
 
         <highlighterExtension implementation="org.jetbrains.kotlin.android.AndroidHighlighterExtension"/>
+
+        <syntheticScopeProviderExtension implementation="org.jetbrains.kotlin.android.compat.scope.CompatSyntheticsProviderExtension"/>
+        <expressionCodegenExtension implementation="org.jetbrains.kotlin.android.compat.codegen.CompatExpressionCodegenExtension"/>
     </extensions>
 
     <project-components>

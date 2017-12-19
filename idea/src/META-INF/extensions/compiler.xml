@@ -53,5 +53,8 @@
                         area="IDEA_PROJECT"/>
         <extensionPoint name="renameHandler"
                         interface="com.intellij.refactoring.rename.RenameHandler"/>
+        <extensionPoint name="syntheticScopeProviderExtension"
+                        interface="org.jetbrains.kotlin.synthetic.extensions.SyntheticScopeProviderExtension"
+                        area="IDEA_PROJECT"/>
     </extensionPoints>
 </idea-plugin>

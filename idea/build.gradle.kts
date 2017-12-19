@@ -43,6 +43,8 @@ dependencies {
 
     compile(preloadedDeps("markdown", "kotlinx-coroutines-core"))
 
+    compileOnly(project(":android-compat-compiler-plugin"))
+
     testCompile(project(":kotlin-test:kotlin-test-junit"))
     testCompile(projectTests(":compiler:tests-common"))
     testCompile(project(":idea:idea-test-framework")) { isTransitive = false }

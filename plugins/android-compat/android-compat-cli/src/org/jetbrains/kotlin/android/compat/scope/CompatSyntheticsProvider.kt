@@ -34,10 +34,11 @@ import org.jetbrains.kotlin.synthetic.extensions.SyntheticScopeProviderExtension
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.checker.KotlinTypeChecker
 import org.jetbrains.kotlin.types.typeUtil.isInterface
-import java.io.File
 import kotlin.properties.Delegates
 
 interface CompatSyntheticFunctionDescriptor : FunctionDescriptor, SyntheticMemberDescriptor<FunctionDescriptor>
+
+val compatAnnotationFqName = FqName("kotlin.annotations.jvm.internal.Compat")
 
 private data class OriginAndCompat(
         val origin: ClassDescriptor,
@@ -49,7 +50,6 @@ private abstract class CompatSyntheticResolutionScope(
         protected val ownerClass: ClassDescriptor,
         protected val type: KotlinType
 ) : AbstractResolutionScopeAdapter() {
-    private val annotationFqName = FqName("kotlin.annotations.jvm.internal.Compat")
     protected val compats = storageManager.createLazyValue {
         doGetCompats()
     }
@@ -66,7 +66,7 @@ private abstract class CompatSyntheticResolutionScope(
     }
 
     private fun ClassDescriptor.findCompat(): ClassDescriptor? {
-        val annotation = annotations.firstOrNull { it.fqName == annotationFqName } ?: return null
+        val annotation = annotations.firstOrNull { it.fqName == compatAnnotationFqName } ?: return null
         val annotationValue = annotation.argumentValue("value") ?: error("Compat annotation must have value")
         val valueString = annotationValue as? String ?: error("$annotationValue must be string")
 
@@ -77,12 +77,12 @@ private abstract class CompatSyntheticResolutionScope(
             className = valueString.substring(valueString.lastIndexOf('.') + 1)
         }
 
-        return module.getPackage(FqName(packageName))
-                       .memberScope
-                       .getContributedClassifier(
-                               Name.identifier(className),
-                               NoLookupLocation.FROM_SYNTHETIC_SCOPE
-                       ) as? ClassDescriptor ?: error("Compat must be a class")
+        return ownerClass.module.getPackage(FqName(packageName))
+                .memberScope
+                .getContributedClassifier(
+                        Name.identifier(className),
+                        NoLookupLocation.FROM_SYNTHETIC_SCOPE
+                ) as? ClassDescriptor
     }
 }
 
@@ -273,11 +273,9 @@ private class CompatSyntheticStaticScope(
 
 class CompatSyntheticsProvider(private val storageManager: StorageManager) : SyntheticScopeProvider {
     override fun provideSyntheticScope(scope: ResolutionScope, requirements: SyntheticScopesRequirements): ResolutionScope {
-        File("/tmp/compat.log").appendText("input scope $\n")
         val descriptor = scope.getContributedDescriptors().firstOrNull() ?: return scope
         val ownerClass = descriptor.containingDeclaration as? ClassDescriptor ?: return scope
         val type = ownerClass.defaultType as? KotlinType ?: return scope
-        File("/tmp/compat.log").appendText("creating compat synthetic scope for $type\n")
         return when {
         // The property can be generated from getters, thus, we should provide a scope for them
             requirements.needMemberFunctions || requirements.needExtensionProperties ->
